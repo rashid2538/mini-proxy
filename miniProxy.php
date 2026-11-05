@@ -243,7 +243,11 @@ if (isset($_POST['miniProxyFormAction'])) {
         unset($queryParams['miniProxyFormAction']);
         $url = $formAction . '?' . http_build_query($queryParams);
     } else {
-        $url = substr($_SERVER['REQUEST_URI'] ?? '', strlen($_SERVER['SCRIPT_NAME'] ?? '') + 1);
+        // Everything after the first "?" is the target URL. Don't slice by
+        // strlen(SCRIPT_NAME): "/?url" is served as "/index.php" and would lose chars.
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        $qPos = strpos($requestUri, '?');
+        $url = $qPos === false ? '' : substr($requestUri, $qPos + 1);
     }
 }
 
